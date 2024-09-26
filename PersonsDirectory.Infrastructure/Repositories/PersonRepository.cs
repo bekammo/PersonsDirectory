@@ -57,5 +57,19 @@ namespace PersonsDirectory.Infrastructure.Repositories
                 .ToDictionaryAsync(x => x.RelationshipType, x => x.Count);
         }
 
+        public async Task<Person> GetPersonWithDetailsAsync(int id)
+        {
+            var person = await _context.Persons
+                .Include(p => p.PhoneNumbers)
+                .Include(p => p.RelatedIndividuals)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (person == null)
+            {
+                throw new KeyNotFoundException($"Person with ID {id} not found.");
+            }
+
+            return person;
+        }
     }
 }

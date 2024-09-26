@@ -13,5 +13,6 @@ namespace PersonsDirectory.Application.Interfaces
     {
         Task<SearchPersonResult> SearchPersonAsync(SearchPersonQuery query);
         Task<Dictionary<RelationshipType, int>> GetRelatedPersonsReportAsync(int personId);
+        Task<Person> GetPersonWithDetailsAsync(int id);
     }
 }

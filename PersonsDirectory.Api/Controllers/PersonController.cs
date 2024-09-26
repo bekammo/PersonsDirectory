@@ -23,7 +23,7 @@ namespace PersonsDirectory.Api.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddPerson(CreatePersonCommand command)
+        public async Task<IActionResult> AddPerson([FromBody] CreatePersonCommand command)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -32,15 +32,24 @@ namespace PersonsDirectory.Api.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdatePerson(int id, UpdatePersonCommand command)
+        public async Task<IActionResult> UpdatePerson(int id, [FromBody] UpdatePersonCommand command)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); 
+            }
+
             command.Id = id;
             var person = await _mediator.Send(command);
 
-            if (person == null) return NotFound();
+            if (person == null)
+            {
+                return NotFound();
+            }
 
             return Ok(person);
         }
+
 
         [HttpPost("upload-image/{id}")]
         public async Task<IActionResult> UploadImage(int id, IFormFile image)

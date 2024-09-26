@@ -17,18 +17,22 @@ namespace PersonsDirectory.Infrastructure.Persistence
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Person>()
-               .HasMany(p => p.PhoneNumbers)
-               .WithOne()
-               .HasForeignKey("PersonId");
+                .HasMany(p => p.PhoneNumbers)
+                .WithOne()
+                .HasForeignKey("PersonId")
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Person>()
                 .HasMany(p => p.RelatedIndividuals)
                 .WithOne()
-                .HasForeignKey("PersonId");
+                .HasForeignKey("PersonId")
+                .OnDelete(DeleteBehavior.Cascade);
+
 
             modelBuilder.Entity<Person>()
                 .Property(p => p.City)
                 .HasConversion<int>();
+
         }
     }
 }

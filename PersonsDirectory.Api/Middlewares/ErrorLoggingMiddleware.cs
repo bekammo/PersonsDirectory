@@ -1,4 +1,7 @@
-﻿namespace PersonsDirectory.Api.Middlewares
+﻿using FluentValidation;
+using System.Text.Json;
+
+namespace PersonsDirectory.Api.Middlewares
 {
     public class ErrorLoggingMiddleware
     {
@@ -17,11 +20,32 @@
             {
                 await _next(context);
             }
-            catch (Exception ex)
+            catch (ValidationException ex) 
+            {
+                _logger.LogWarning("Validation exception occurred: {Errors}", ex.Errors);
+
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                context.Response.ContentType = "application/json";
+
+                var validationErrors = ex.Errors
+                    .Select(error => new { Field = error.PropertyName, Message = error.ErrorMessage })
+                    .ToList();
+
+                var response = new { Errors = validationErrors };
+
+                var jsonResponse = JsonSerializer.Serialize(response);
+                await context.Response.WriteAsync(jsonResponse);
+            }
+            catch (Exception ex) 
             {
                 _logger.LogError(ex, "An unhandled exception occurred.");
+
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                await context.Response.WriteAsync("An unexpected error occurred.");
+                context.Response.ContentType = "application/json";
+
+                var response = new { Error = "An unexpected error occurred." };
+                var jsonResponse = JsonSerializer.Serialize(response);
+                await context.Response.WriteAsync(jsonResponse);
             }
         }
     }

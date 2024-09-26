@@ -1,11 +1,10 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using PersonsDirectory.Api.Middlewares;
-using PersonsDirectory.Api.Validators;
 using PersonsDirectory.Application.Commands.Handlers;
 using PersonsDirectory.Application.Interfaces;
+using PersonsDirectory.Application.Validators;
 using PersonsDirectory.Infrastructure.Persistence;
 using PersonsDirectory.Infrastructure.Repositories;
 using PersonsDirectory.Infrastructure.Services;
@@ -27,15 +26,13 @@ builder.Services.AddScoped<IImageService, ImageService>(sp =>
     return new ImageService(imageDirectory);
 });
 
-
-builder.Services.AddControllers(options =>
-{
-    options.Filters.Add<ValidationFilter>();
-});
+builder.Services.AddControllers();
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreatePersonCommandHandler).Assembly));
+
 builder.Services.AddFluentValidationAutoValidation()
-    .AddFluentValidationClientsideAdapters();
+    .AddFluentValidationClientsideAdapters()
+    .AddValidatorsFromAssemblyContaining<CreatePersonValidator>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
